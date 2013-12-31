@@ -28,6 +28,8 @@ class ChessBoard {
 
   bool gameOver = false;
   String tip;
+  int step = 0;
+  Map<int, String> history = new Map<int, String>();
 
   ChessBoard(){
     cells = new List<List<BoardCell>>();
@@ -44,8 +46,50 @@ class ChessBoard {
     cells[3][4].piece = black;
     cells[4][3].piece = black;
     cells[4][4].piece = white;
+    history[step] = encodeChessboard();
 
     tip = "游戏开始";
+  }
+
+  String encodePiece(piece){
+    if(piece == white){
+      return 'w';
+    }else if(piece == black){
+      return 'b';
+    }else{
+      return ' ';
+    }
+  }
+
+  String decodePiece(String code){
+    if(code == 'w'){
+      return white;
+    }else if(code == 'b'){
+      return black;
+    }else{
+      return null;
+    }
+  }
+
+  String encodeChessboard(){
+    StringBuffer chars = new StringBuffer();
+    for(int i=0;i<BoardSize;i++){
+      for(int j=0;j<BoardSize;j++){
+        chars.write(encodePiece(cells[i][j].piece));
+      }
+    }
+    chars.write(encodePiece(currentTurn));
+    return chars.toString();
+  }
+
+  void decodeChessboard(String chars){
+    int c=0;
+    for(int i=0;i<BoardSize;i++){
+      for(int j=0;j<BoardSize;j++){
+        cells[i][j].piece = decodePiece(chars[c++]);
+      }
+    }
+    currentTurn = decodePiece(chars[c++]);
   }
 
   switchTurn(){
@@ -67,8 +111,10 @@ class ChessBoard {
       var success = reverseOpponents(cell, currentTurn);
       if(success){
         cell.piece = currentTurn;
-        calculateScore();
         switchTurn();
+        calculateScore();
+        step++;
+        history[step] = encodeChessboard();
         if(canPlacePiece(currentTurn)){
           tip = null;
         }else{
@@ -195,7 +241,15 @@ class ChessBoard {
     return false;
   }
 
-  calculateScore(){
+  void gotoStep(int step){
+    if(history.containsKey(step)){
+      decodeChessboard(history[step]);
+      calculateScore();
+      this.step = step;
+    }
+  }
+
+  void calculateScore(){
     whiteScore = 0;
     blackScore = 0;
     for(int i=0;i<BoardSize;i++){

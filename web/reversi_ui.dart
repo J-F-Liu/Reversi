@@ -20,6 +20,8 @@ void main() {
     }
   }
   updateCells();
+  updateHistory();
+  window.onPopState.listen(restoreGameState);
 }
 
 void updateCells(){
@@ -39,14 +41,27 @@ void updateCells(){
   }
 }
 
+void updateHistory(){
+  window.history.pushState(chess.step, "", "#step${chess.step}");
+}
+
 void placePiece(MouseEvent event) {
   var piece = event.target;
   var boardCell = cells[piece];
   if(chess.placePiece(boardCell)){
     updateCells();
+    updateHistory();
     piece.classes.add('last');
   }else if(boardCell.isEmpty){
     message.text = chess.message;
     piece.classes.add('last');
+  }
+}
+
+void restoreGameState(PopStateEvent event){
+  int step = event.state as int;
+  if(step != null){
+    chess.gotoStep(step);
+    updateCells();
   }
 }
