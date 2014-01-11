@@ -26,6 +26,7 @@ class ChessBoard {
   int blackScore = 2;
   int whiteScore = 2;
 
+  bool gameStart = false;
   bool gameOver = false;
   String tip;
   int step = 0;
@@ -241,6 +242,20 @@ class ChessBoard {
     return false;
   }
 
+  List<BoardCell> validPlacements(){
+    List<BoardCell> placements = [];
+    for(int i=0;i<BoardSize;i++){
+      for(int j=0;j<BoardSize;j++){
+        var cell = cells[i][j];
+        if(cell.isEmpty &&
+            findReverible(cell, currentTurn).length > 0){
+          placements.add(cell);
+        }
+      }
+    }
+    return placements;
+  }
+
   void gotoStep(int step){
     if(history.containsKey(step)){
       decodeChessboard(history[step]);
@@ -267,19 +282,23 @@ class ChessBoard {
   var players = {black:"黑方", white:"白方"};
 
   String get message {
-    if(gameOver){
-      if(whiteScore > blackScore){
-        return "白方胜！";
-      }else if(whiteScore < blackScore){
-        return "黑方胜！";
-      }else{
-        return "双方平局！";
+    if(gameStart){
+      if(gameOver){
+        if(whiteScore > blackScore){
+          return "白方胜！";
+        }else if(whiteScore < blackScore){
+          return "黑方胜！";
+        }else{
+          return "双方平局！";
+        }
       }
-    }
-    if(tip == null){
-      return "${players[currentTurn]}走棋";
+      if(tip == null){
+        return "${players[currentTurn]}走棋";
+      }else{
+        return "$tip，${players[currentTurn]}走棋";
+      }
     }else{
-      return "$tip，${players[currentTurn]}走棋";
+      return "等待对方加入……";
     }
   }
 }

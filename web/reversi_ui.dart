@@ -1,67 +1,30 @@
 import 'dart:html';
-import 'reversi_game.dart';
+import 'view_switcher.dart';
+import 'chess_view.dart';
 
-var chess = new ChessBoard();
-var cells = new Map<DivElement,BoardCell>();
-var blackScore = querySelector("#blackScore");
-var whiteScore = querySelector("#whiteScore");
-var message = querySelector("#message");
+$(String selectors) => querySelector(selectors);
 
 void main() {
-  TableElement board = querySelector("#board");
-  for(int i=0;i<ChessBoard.BoardSize;i++){
-    var row = board.addRow();
-    for(int j=0;j<ChessBoard.BoardSize;j++){
-       var cell = row.addCell();
-       var piece = new DivElement();
-       cell.children.add(piece);
-       piece.onClick.listen(placePiece);
-       cells[piece] = chess.cells[i][j];
-    }
-  }
-  updateCells();
-  updateHistory();
-  window.onPopState.listen(restoreGameState);
-}
+  var switcher = new Switcher($("#container"));
+  var buttons = new ButtonList("GameMenu", [
+    {
+      "text":"人机对弈",
+      "action": (e){
+        switcher.loadView(new HumanVsComputerChessView("ChessBoard"));
+      }
+    },
+    {
+      "text":"双人对弈",
+      "action": (e){
+        switcher.loadView(new HumanVsHumanChessView("ChessBoard"));
+      }
+    },
+    {
+      "text":"联网对弈",
+      "action": (e){
+        switcher.loadView(new HumanViaNetChessView("ChessBoard", "ws://192.168.1.100:9223/ws"));
+      }
+    }]);
 
-void updateCells(){
-  cells.forEach((piece, boardCell){
-    piece.classes.clear();
-    if(!boardCell.isEmpty){
-      piece.classes.add(boardCell.piece);
-    }
-  });
-  blackScore.text = chess.blackScore.toString();
-  whiteScore.text = chess.whiteScore.toString();
-  message.text = chess.message;
-  if(chess.message.contains('无棋')){
-    message.style.color = 'red';
-  }else{
-    message.style.color = 'black';
-  }
-}
-
-void updateHistory(){
-  window.history.pushState(chess.step, "", "#step${chess.step}");
-}
-
-void placePiece(MouseEvent event) {
-  var piece = event.target;
-  var boardCell = cells[piece];
-  if(chess.placePiece(boardCell)){
-    updateCells();
-    updateHistory();
-    piece.classes.add('last');
-  }else if(boardCell.isEmpty){
-    message.text = chess.message;
-    piece.classes.add('last');
-  }
-}
-
-void restoreGameState(PopStateEvent event){
-  int step = event.state as int;
-  if(step != null){
-    chess.gotoStep(step);
-    updateCells();
-  }
+    switcher.loadView(buttons);
 }
