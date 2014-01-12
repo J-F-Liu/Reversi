@@ -1,6 +1,7 @@
 import 'dart:html';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:async';
 import 'view_switcher.dart';
 import 'reversi_game.dart';
 import 'game_client.dart';
@@ -121,6 +122,8 @@ class HumanVsComputerChessView extends ChessView {
           break;
         }
       }
+
+      updateHistory();
     }
   }
 
@@ -159,6 +162,13 @@ class HumanViaNetChessView extends ChessView {
     onLoad = (){
       updateCells();
 
+      client.connectServer(server).then((success){
+        if(!success){
+          window.alert("无法连接服务器");
+          window.history.back();
+        }
+      });
+
       client.receivedData = (data){
         var msg = JSON.decode(data);
         switch(msg['action'])
@@ -181,7 +191,6 @@ class HumanViaNetChessView extends ChessView {
             break;
         }
       };
-      client.connectServer(server);
     };
 
   }
