@@ -56,16 +56,20 @@ class Switcher {
 
 class ComposedView extends View {
   List<View> views;
+  List<Element> elements;
 
-  ComposedView(name, this.views){
+  ComposedView(name, this.views, [this.elements]){
     this.id = name;
     this.urlSegment = name.toString();
   }
 
   Iterable<Element> render() {
-    List<Element> elements = new List<Element>();
-	  views.forEach((view) => elements.addAll(view.render()));
-    return elements;
+    List<Element> all_elements = new List<Element>();
+	  views.forEach((view) => all_elements.addAll(view.render()));
+    if(elements != null){
+      all_elements.addAll(elements);
+    }
+    return all_elements;
   }
 
 }
