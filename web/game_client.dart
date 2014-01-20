@@ -1,3 +1,5 @@
+library game_client;
+
 import 'dart:html';
 import 'dart:async';
 

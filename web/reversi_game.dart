@@ -1,3 +1,5 @@
+library reversi_game;
+
 class BoardCell {
   int row;
   int col;
@@ -242,14 +244,16 @@ class ChessBoard {
     return false;
   }
 
-  List<BoardCell> validPlacements(){
-    List<BoardCell> placements = [];
+  Map<BoardCell, int> validPlacements(){
+    Map<BoardCell, int> placements = {};
     for(int i=0;i<BoardSize;i++){
       for(int j=0;j<BoardSize;j++){
         var cell = cells[i][j];
-        if(cell.isEmpty &&
-            findReverible(cell, currentTurn).length > 0){
-          placements.add(cell);
+        if(cell.isEmpty) {
+          int count = findReverible(cell, currentTurn).length;
+          if(count > 0){
+            placements[cell] = count;
+          }
         }
       }
     }

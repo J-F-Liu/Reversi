@@ -93,8 +93,6 @@ abstract class ChessView extends View {
 
 class HumanVsComputerChessView extends ChessView {
 
-  var random = new Random();
-
   HumanVsComputerChessView(name):super(name){
 
     onLoad = (){
@@ -106,6 +104,18 @@ class HumanVsComputerChessView extends ChessView {
 
   }
 
+  findMaxKey(Map<dynamic, int> map){
+    int maxValue = 0;
+    var maxKey = null;
+    map.forEach((key, value){
+      if(value > maxValue){
+        maxValue = value;
+        maxKey = key;
+      }
+    });
+    return maxKey;
+  }
+
   void pieceClick(MouseEvent event) {
     if(chess.currentTurn == "black"){
       var piece = event.target;
@@ -115,7 +125,7 @@ class HumanVsComputerChessView extends ChessView {
       while(chess.currentTurn == "white"){
         var boardCells = chess.validPlacements();
         if(boardCells.length > 0){
-          boardCell = boardCells[random.nextInt(boardCells.length)];
+          boardCell = findMaxKey(boardCells);
           var piece = cells.keys.firstWhere((k)=>cells[k]==boardCell);
           placePiece(piece, boardCell);
         }else{
